@@ -24,7 +24,7 @@ type BudgetBill struct {
 	Amount
 	Category
 	Schedule
-	IsPredictable       bool
+	IsAmountExact       bool
 	IsPaidAutomatically bool
 }
 
@@ -40,10 +40,26 @@ type BudgetExpenses struct {
 // -----------------------------------------------------------------------------
 
 type PayPeriod struct {
-	ID        uuid.UUID
-	BudgetID  uuid.UUID
-	StartDate string // TODO date
-	EndDate   string // TODO date
+	ID                 uuid.UUID
+	BudgetID           uuid.UUID
+	StartDate          string // TODO date
+	EndDate            string // TODO date
+	ExactIncomes       []AmountAssignment
+	ExactBills         []AmountAssignment
+	ExactExpenses      []AmountAssignment
+	AdditionalExpenses []CategoryAndAmount
+	Checklist          []ChecklistItem
+	Calculations       []PayPeriodCalculations
+}
+
+type ChecklistItem struct {
+	CategoryID uuid.UUID // TODO: include name, or only ID?
+	Done       bool
+}
+
+type PayPeriodCalculations struct {
+	Total      Amount
+	Categories []CategoryAndAmount
 }
 
 // -----------------------------------------------------------------------------
@@ -55,7 +71,18 @@ type Amount struct {
 }
 
 type Category struct {
+	ID   uuid.UUID
 	Name string
+}
+
+type CategoryAndAmount struct {
+	Category
+	Amount
+}
+
+type AmountAssignment struct {
+	Amount
+	CategoryID uuid.UUID
 }
 
 type Schedule struct {
