@@ -1,6 +1,15 @@
 package api
 
 // -----------------------------------------------------------------------------
+// Category types: Obviously a name, but also an ID for specificity and name changes.
+// -----------------------------------------------------------------------------
+
+type Category struct {
+	ID   uuid.UUID
+	Name string
+}
+
+// -----------------------------------------------------------------------------
 // Budget types: Used to plan for your typical/expected month.
 // -----------------------------------------------------------------------------
 
@@ -15,14 +24,12 @@ type Budget struct {
 }
 
 type BudgetIncome struct {
-	Amount
-	Category
+	CategoryRefAndAmount
 }
 
 // Bills may occur weekly, biweekly, semimonthly, monthly, or annually, but that frequency determines when each transaction will occur.
 type BudgetBill struct {
-	Amount
-	Category
+	CategoryRefAndAmount
 	Schedule
 	IsAmountExact       bool
 	IsPaidAutomatically bool
@@ -30,8 +37,7 @@ type BudgetBill struct {
 
 // Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
 type BudgetExpenses struct {
-	Amount
-	Category
+	CategoryRefAndAmount
 	IsAmountExact bool
 }
 
@@ -70,19 +76,9 @@ type Amount struct {
 	AmountCents uint
 }
 
-type Category struct {
-	ID   uuid.UUID
-	Name string
-}
-
-type CategoryAndAmount struct {
-	Category
-	Amount
-}
-
-type AmountAssignment struct {
-	Amount
+type CategoryRefAndAmount struct {
 	CategoryID uuid.UUID
+	Amount
 }
 
 type Schedule struct {
