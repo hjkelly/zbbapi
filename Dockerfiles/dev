@@ -1,7 +1,7 @@
 FROM golang:alpine
 
-COPY . /go/src/github.com/hjkelly/zero-balance-budget-api
-WORKDIR /go/src/github.com/hjkelly/zero-balance-budget-api
+COPY . /go/src/github.com/hjkelly/zbbapi
+WORKDIR /go/src/github.com/hjkelly/zbbapi
 
 RUN go install
 
