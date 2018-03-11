@@ -1,5 +1,7 @@
 package api
 
+import uuid "github.com/satori/go.uuid"
+
 // -----------------------------------------------------------------------------
 // Category types: Obviously a name, but also an ID for specificity and name changes.
 // -----------------------------------------------------------------------------
@@ -14,13 +16,13 @@ type Category struct {
 // -----------------------------------------------------------------------------
 
 type Budget struct {
-	ID           uuid.UUID
-	Income       []BudgetIncome
-	Bills        []BudgetBill
-	Expenses     []BudgetExpense
-	Goal         []BudgetGoal
-	GoalStrategy string
-	Paydays      Schedule // TODO: separate from yearly schedule
+	ID       uuid.UUID
+	Paydays  Schedule // TODO: separate from yearly schedule
+	Income   []BudgetIncome
+	Bills    []BudgetBill
+	Expenses []BudgetExpense
+	//Goal         []BudgetGoal
+	//GoalStrategy string
 }
 
 type BudgetIncome struct {
@@ -36,7 +38,7 @@ type BudgetBill struct {
 }
 
 // Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
-type BudgetExpenses struct {
+type BudgetExpense struct {
 	CategoryRefAndAmount
 	IsAmountExact bool
 }
@@ -50,10 +52,10 @@ type PayPeriod struct {
 	BudgetID           uuid.UUID
 	StartDate          string // TODO date
 	EndDate            string // TODO date
-	ExactIncomes       []AmountAssignment
-	ExactBills         []AmountAssignment
-	ExactExpenses      []AmountAssignment
-	AdditionalExpenses []CategoryAndAmount
+	ExactIncomes       []CategoryRefAndAmount
+	ExactBills         []CategoryRefAndAmount
+	ExactExpenses      []CategoryRefAndAmount
+	AdditionalExpenses []CategoryRefAndAmount
 	Checklist          []ChecklistItem
 	Calculations       []PayPeriodCalculations
 }
@@ -65,7 +67,7 @@ type ChecklistItem struct {
 
 type PayPeriodCalculations struct {
 	Total      Amount
-	Categories []CategoryAndAmount
+	Categories []CategoryRefAndAmount
 }
 
 // -----------------------------------------------------------------------------
