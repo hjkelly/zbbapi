@@ -1,17 +1,23 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
+
+	"github.com/urfave/negroni"
 )
 
 // hello world, the web server
 func HelloServer(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "hello, world!\n")
+	w.WriteHeader(200)
+	w.Write([]byte("OK"))
 }
 
 func main() {
-	http.HandleFunc("/", HelloServer)
-	log.Fatal(http.ListenAndServe(":12345", nil))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", HelloServer)
+
+	n := negroni.Classic()
+	n.UseHandler(mux)
+	log.Fatal(http.ListenAndServe(":8080", n))
 }

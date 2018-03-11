@@ -7,9 +7,15 @@
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
 
+[[projects]]
+  name = "github.com/urfave/negroni"
+  packages = ["."]
+  revision = "5dbbc83f748fc3ad38585842b0aedab546d0ea1e"
+  version = "v0.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4bfe0a295f998a250c53fcf0757ab85c1ab64e8cfbfd362e37614b3c7ee0e3db"
+  inputs-digest = "c24ac7ca949baed7ac41374699cc8e4403c7d380b7bc662692380200d50fbcbf"
   solver-name = "gps-cdcl"
   solver-version = 1

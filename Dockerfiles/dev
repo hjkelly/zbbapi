@@ -5,4 +5,4 @@ WORKDIR /go/src/github.com/hjkelly/zbbapi
 
 RUN go install
 
-CMD ["api"]
+CMD ["zbbapi"]
