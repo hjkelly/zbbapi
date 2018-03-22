@@ -1,14 +1,19 @@
 package models
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 // -----------------------------------------------------------------------------
 // Category types: Obviously a name, but also an ID for specificity and name changes.
 // -----------------------------------------------------------------------------
 
 type Category struct {
-	ID   uuid.UUID
-	Name string
+	ID   uuid.UUID `json:"id" bson:"_id"`
+	Name string    `json:"name"`
+	Timestamped
 }
 
 // -----------------------------------------------------------------------------
@@ -88,4 +93,18 @@ type Schedule struct {
 	MonthlyOnDays     []uint
 	BiweeklyStartDate string // TODO: date
 	WeeklyStartDate   string // TODO: date
+}
+
+type Timestamped struct {
+	Created  time.Time `json:"created"`
+	Modified time.Time `json:"modified"`
+}
+
+func (t *Timestamped) SetCreationTimestamp() {
+	t.Created = time.Now()
+	t.Modified = time.Now()
+}
+
+func (t *Timestamped) SetModificationTimestamp() {
+	t.Modified = time.Now()
 }

@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/hjkelly/zbbapi/handlers/v1"
+	"github.com/julienschmidt/httprouter"
 	"github.com/urfave/negroni"
 )
 
@@ -14,10 +16,11 @@ func HelloServer(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", HelloServer)
+	router := httprouter.New()
+	v1.RegisterHandlers(router)
 
 	n := negroni.Classic()
-	n.UseHandler(mux)
+	n.UseHandler(router)
+
 	log.Fatal(http.ListenAndServe(":8080", n))
 }

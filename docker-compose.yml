@@ -21,7 +21,7 @@ services:
         depends_on:
         - mongodb
         environment:
-            MONGO_URL: "mongo:27017/zbb"
+            MONGO_URL: "mongodb://mongodb:27017"
         ports:
         - 8080:8080
 
