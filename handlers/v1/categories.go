@@ -21,8 +21,8 @@ func listCategories(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 func createCategory(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	// Parse the request body.
 	var category models.Category
-	// Parse the input.
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
 		log.Printf(err.Error())
@@ -41,6 +41,33 @@ func createCategory(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 
 func retrieveCategory(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	result, err := categories.Retrieve(params.ByName("id"))
+	if err != nil {
+		common.WriteErrorResponse(w, err)
+		return
+	}
+	common.WriteResponse(w, 200, result)
+}
+
+func deleteCategory(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	err := categories.Delete(params.ByName("id"))
+	if err != nil {
+		common.WriteErrorResponse(w, err)
+		return
+	}
+	common.WriteResponse(w, 204, nil)
+}
+
+func updateCategory(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	// Parse the request body.
+	var category models.Category
+	err := json.NewDecoder(r.Body).Decode(&category)
+	if err != nil {
+		log.Printf(err.Error())
+		common.WriteErrorResponse(w, common.ParseErr)
+		return
+	}
+	// Update according to the URL.
+	result, err := categories.UpdateID(params.ByName("id"), category)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
