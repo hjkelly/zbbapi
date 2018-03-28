@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// WriteResponse preps some data to a response with the given status code.
 func WriteResponse(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -18,6 +19,7 @@ func WriteResponse(w http.ResponseWriter, status int, data interface{}) {
 	}
 }
 
+// WriteErrorResponse preps the response by trying to guess the type of the error.
 func WriteErrorResponse(w http.ResponseWriter, err error) {
 	if err == ParseErr {
 		WriteResponse(w, 400, err)

@@ -25,7 +25,7 @@ func createCategory(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	var category models.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		common.WriteErrorResponse(w, common.ParseErr)
 		return
 	}
@@ -62,7 +62,7 @@ func updateCategory(w http.ResponseWriter, r *http.Request, params httprouter.Pa
 	var category models.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 		common.WriteErrorResponse(w, common.ParseErr)
 		return
 	}

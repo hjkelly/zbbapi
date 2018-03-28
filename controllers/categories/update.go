@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// UpdateID finds the current Category by ID, updates all its user-updatable fields, and saves it again.
 func UpdateID(id string, input models.Category) (*models.Category, error) {
 	ds := newDatastore()
 
@@ -19,9 +20,8 @@ func UpdateID(id string, input models.Category) (*models.Category, error) {
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, common.NotFoundErr
-		} else {
-			return nil, err
 		}
+		return nil, err
 	}
 
 	// Validate the input and use it to update the current data.

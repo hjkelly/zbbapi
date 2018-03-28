@@ -5,6 +5,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Create validates and preps a Category, then saves it via the controller's datastore.
 func Create(input models.Category) (*models.Category, error) {
 	// Did they give us enough to save?
 	err := validate(input)

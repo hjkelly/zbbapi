@@ -9,12 +9,6 @@ import (
 	"github.com/urfave/negroni"
 )
 
-// hello world, the web server
-func HelloServer(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(200)
-	w.Write([]byte("OK"))
-}
-
 func main() {
 	router := httprouter.New()
 	v1.RegisterHandlers(router)

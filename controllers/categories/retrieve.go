@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Retrieve fetches a single Category from the database, if its ID exists.
 func Retrieve(id string) (*models.Category, error) {
 	ds := newDatastore()
 	result := new(models.Category)
@@ -17,9 +18,8 @@ func Retrieve(id string) (*models.Category, error) {
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, common.NotFoundErr
-		} else {
-			return nil, err
 		}
+		return nil, err
 	}
 	return result, nil
 }
