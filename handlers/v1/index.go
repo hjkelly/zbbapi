@@ -9,4 +9,6 @@ func RegisterHandlers(router *httprouter.Router) {
 	router.GET("/v1/categories/:id", retrieveCategory)
 	router.PUT("/v1/categories/:id", updateCategory)
 	router.DELETE("/v1/categories/:id", deleteCategory)
+
+	router.POST("/v1/budgets", createBudget)
 }

@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/GoogleCloudPlatform/google-cloud-go"
+  packages = ["civil"]
+  revision = "4b98a6370e36d7a85192e7bad08a4ebd82eac2a8"
+  version = "v0.20.0"
+
+[[projects]]
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
   revision = "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
@@ -34,6 +40,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "16b148c8abe446bbeb1143e05196b0bc9528a386e2d46dbd65c32e80c62ae555"
+  inputs-digest = "f20ca6dd09dffc2e2ad4e765608b0f7c7529e22c69ff84946a5d1e3e57e9c445"
   solver-name = "gps-cdcl"
   solver-version = 1

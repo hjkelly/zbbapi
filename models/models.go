@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/GoogleCloudPlatform/google-cloud-go/civil"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -21,31 +22,31 @@ type Category struct {
 // -----------------------------------------------------------------------------
 
 type Budget struct {
-	ID       uuid.UUID
-	Paydays  Schedule // TODO: separate from yearly schedule
-	Income   []BudgetIncome
-	Bills    []BudgetBill
-	Expenses []BudgetExpense
+	ID       uuid.UUID       `json:"id" bson:"_id"`
+	Income   []BudgetIncome  `json:"income"`
+	Bills    []BudgetBill    `json:"bills"`
+	Expenses []BudgetExpense `json:"expenses"`
 	//Goal         []BudgetGoal
 	//GoalStrategy string
+	Timestamped
 }
 
 type BudgetIncome struct {
 	CategoryRefAndAmount
+	Schedule `json:"schedule"`
 }
 
-// Bills may occur weekly, biweekly, semimonthly, monthly, or annually, but that frequency determines when each transaction will occur.
+// Bills may occur weekly, biweekly, semimonthly, monthly, or annually, but that frequency determines when each transaction should occur.
 type BudgetBill struct {
 	CategoryRefAndAmount
 	Schedule
-	IsAmountExact       bool
-	IsPaidAutomatically bool
+	IsAmountPredictable bool `json:"isAmountPredictable"`
+	IsPaidAutomatically bool `json:"isPaidAutomatically"`
 }
 
 // Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
 type BudgetExpense struct {
 	CategoryRefAndAmount
-	IsAmountExact bool
 }
 
 // -----------------------------------------------------------------------------
@@ -55,8 +56,8 @@ type BudgetExpense struct {
 type PayPeriod struct {
 	ID                 uuid.UUID
 	BudgetID           uuid.UUID
-	StartDate          string // TODO date
-	EndDate            string // TODO date
+	StartDate          civil.Date
+	EndDate            civil.Date
 	ExactIncomes       []CategoryRefAndAmount
 	ExactBills         []CategoryRefAndAmount
 	ExactExpenses      []CategoryRefAndAmount
@@ -80,19 +81,19 @@ type PayPeriodCalculations struct {
 // -----------------------------------------------------------------------------
 
 type Amount struct {
-	AmountCents uint
+	AmountCents uint64 `json:"amount"`
 }
 
 type CategoryRefAndAmount struct {
-	CategoryID uuid.UUID
+	CategoryID uuid.UUID `json:"categoryID"`
 	Amount
 }
 
 type Schedule struct {
-	YearlyStartDate   string // TODO: date
-	MonthlyOnDays     []uint
-	BiweeklyStartDate string // TODO: date
-	WeeklyStartDate   string // TODO: date
+	YearlyStartDate   *civil.Date `json:"yearlyStartDate,omitempty"`
+	MonthlyOnDays     []uint      `json:"monthlyOnDays,omitempty"`
+	BiweeklyStartDate *civil.Date `json:"biweeklyStartDate,omitempty"`
+	WeeklyStartDate   *civil.Date `json:"weeklyStartDate,omitempty"`
 }
 
 type Timestamped struct {
