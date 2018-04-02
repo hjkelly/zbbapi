@@ -1,7 +1,10 @@
 package budgets
 
-import "github.com/hjkelly/zbbapi/models"
+import (
+	"github.com/hjkelly/zbbapi/models"
+)
 
+// Do any trimming, cleanup before validation.
 func sanitize(input models.Budget) models.Budget {
 	return input
 }
