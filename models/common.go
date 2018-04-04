@@ -4,7 +4,6 @@
 package models
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -62,27 +61,21 @@ func (s Schedule) Validate() *common.ValidationError {
 	}
 	// If it's monthly, validate the days.
 	if s.Type == "monthly" {
-		log.Printf("checking days of week\n")
 		if len(s.DaysOfMonth) == 0 {
 			return common.NewValidationError("daysOfMonth", common.FIELD_MISSING, "With a monthly schedule, you must provide one or more days of the month.")
 		}
-		log.Printf("they provided 1+\n")
 		for _, day := range s.DaysOfMonth {
 			if day < 1 || day > 31 {
 				return common.NewValidationError("daysOfMonth", common.FIELD_OUT_OF_RANGE, "Days of the month must be between 1 and 31 (inclusive).")
 			}
 		}
-		log.Printf("they were all valid\n")
 	} else {
-		log.Printf("checking start date\n")
 		if s.StartDate == nil || s.StartDate.IsZero() {
 			return common.NewValidationError("startDate", common.FIELD_MISSING, "Unless the schedule is monthly, you must provide a start date.")
 		}
-		log.Printf("date isn't zero: %s\n", s.StartDate)
 		if s.StartDate.IsValid() == false {
 			return common.NewValidationError("startDate", common.FIELD_OUT_OF_RANGE, "This doesn't appear to be a valid date. Perhaps there aren't that many days in this month?")
 		}
-		log.Printf("date is valid: %s\n", s.StartDate)
 	}
 	return nil
 }

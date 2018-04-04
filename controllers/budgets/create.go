@@ -1,6 +1,8 @@
 package budgets
 
 import (
+	"log"
+
 	"github.com/hjkelly/zbbapi/models"
 	uuid "github.com/satori/go.uuid"
 )
@@ -10,6 +12,7 @@ func Create(input models.Budget) (*models.Budget, error) {
 	// Did they give us enough to save?
 	err := validate(input)
 	if err != nil {
+		log.Printf("in Create controller: %+v\n", err)
 		return nil, err
 	}
 
