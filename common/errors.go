@@ -22,10 +22,46 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// GetError returns a type-asserted Error if it can.
+func GetError(err error) (*Error, bool) {
+	if result, ok := err.(Error); ok {
+		return &result, ok
+	} else if ptrResult, ptrOk := err.(*Error); ptrOk {
+		return ptrResult, ptrOk
+	} else {
+		return nil, false
+	}
+}
+
+// Satisfies the `error` interface; returns the message.
+func (e Error) Error() string {
+	return e.Message
+}
+
 // Validation Errors
 type ValidationError struct {
-	Error
-	Fields []ErrorField `json:"fields,omitempty"`
+	BaseError Error        `json:",inline"`
+	Fields    []ErrorField `json:"fields,omitempty"`
+}
+
+// GetValidationError returns a type-asserted Error if it can.
+func GetValidationError(err error) (*ValidationError, bool) {
+	if result, ok := err.(ValidationError); ok {
+		return &result, ok
+	} else if ptrResult, ptrOk := err.(*ValidationError); ptrOk {
+		return ptrResult, ptrOk
+	} else {
+		return nil, false
+	}
+}
+
+// Satisfies the `error` interface; returns the list of affected fields.
+func (e ValidationError) Error() string {
+	fieldNames := []string{}
+	for _, errErr := range e.Fields {
+		fieldNames = append(fieldNames, errErr.FieldName)
+	}
+	return "Errors involving these fields: " + strings.Join(fieldNames, ", ")
 }
 
 // ErrorField is used within Error to denote the problem with a specific field.
@@ -35,30 +71,22 @@ type ErrorField struct {
 	Message   string `json:"message"`
 }
 
-// Satisfies the `error` interface; returns the message, or list of affected fields if provided.
-func (e ValidationError) Error() string {
-	fieldNames := []string{}
-	for _, errErr := range e.Fields {
-		fieldNames = append(fieldNames, errErr.FieldName)
-	}
-	return "Errors involving these fields: " + strings.Join(fieldNames, ", ")
-}
-
-// Implement some extra stuff specifically for validation errors. ----------
-
-// IsValidationError returns true when the item of interface type `error` is actually one of our errors AND has code type INVALID_DATA. This is useful for knowing if we should respond with 422.
-
+// These are codes for errors on fields (`ErrorField`).
 const (
-	FILED_MISSING         string = "MISSING"
+	FIELD_MISSING         string = "MISSING"
 	FIELD_BAD_ENUM_CHOICE string = "BAD_ENUM_CHOICE"
 	FIELD_OUT_OF_RANGE    string = "OUT_OF_RANGE"
 )
 
+const INVALID_DATA_MESSAGE = "One or more fields was either missing or invalid."
+
 // NewValidationError creates a new Error with code INVALID_DATA and instantiates a single field error.
-func NewValidationError(fieldName, code, message string) Error {
-	return Error{
-		Code:    "INVALID_DATA",
-		Message: "One or more fields was either missing or invalid.",
+func NewValidationError(fieldName, code, message string) *ValidationError {
+	return &ValidationError{
+		BaseError: Error{
+			Code:    "INVALID_DATA",
+			Message: INVALID_DATA_MESSAGE,
+		},
 		Fields: []ErrorField{
 			{
 				FieldName: fieldName,
@@ -69,13 +97,30 @@ func NewValidationError(fieldName, code, message string) Error {
 	}
 }
 
-// AddValidationContext prefixes any validation errors with fieldnames.
+// AddValidationContext prefixes any problematic field's names with some parent field.
 func (e ValidationError) AddValidationContext(fieldName string) ValidationError {
-	// TODO
+	for _, field := range e.Fields {
+		field.FieldName = fieldName + "." + field.FieldName
+	}
+	return e
 }
 
 // CombineErrors takes several errors and returns a single validation error.
-func CombineErrors(errors ...[]Error) *ValidationError {
+func CombineErrors(errors ...*ValidationError) *ValidationError {
+	fields := make([]ErrorField, 0, 5)
 	for _, err := range errors {
+		if err == nil {
+			continue
+		}
+		for _, field := range err.Fields {
+			fields = append(fields, field)
+		}
+	}
+	return &ValidationError{
+		BaseError: Error{
+			Code:    "INVALID_DATA",
+			Message: INVALID_DATA_MESSAGE,
+		},
+		Fields: fields,
 	}
 }

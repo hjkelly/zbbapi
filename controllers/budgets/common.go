@@ -11,7 +11,7 @@ func sanitize(input models.Budget) models.Budget {
 
 // Make sure this Budget has input sufficient enough to be saved.
 func validate(input models.Budget) error {
-	return nil
+	return input.Validate()
 }
 
 // Returns the updated Budget, which is the current Budget updated with the input data for the update.

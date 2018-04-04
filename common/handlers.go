@@ -21,15 +21,20 @@ func WriteResponse(w http.ResponseWriter, status int, data interface{}) {
 
 // WriteErrorResponse preps the response by trying to guess the type of the error.
 func WriteErrorResponse(w http.ResponseWriter, err error) {
-	if err == ParseErr {
-		WriteResponse(w, 400, err)
-	} else if err == NotFoundErr {
-		WriteResponse(w, 404, err)
-	} else if IsValidationError(err) {
+	if result, ok := GetError(err); ok {
+		// If it's our generic error, respond accordingly.
+		if result == ParseErr {
+			WriteResponse(w, 400, err)
+		} else if result == NotFoundErr {
+			WriteResponse(w, 404, err)
+		} else {
+			WriteResponse(w, 500, err)
+		}
+	} else if _, ok := GetValidationError(err); ok {
+		// If it's a validation error, handle that.
 		WriteResponse(w, 422, err)
-	} else if IsError(err) {
-		WriteResponse(w, 500, err)
 	} else {
+		// If it's just a generic error, respond and log an error.
 		log.Println("Unexpected error: " + err.Error())
 		WriteResponse(w, 500, map[string]string{"message": "Sorry, something went wrong on our end. Try again later!"})
 	}

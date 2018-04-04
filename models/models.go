@@ -1,9 +1,6 @@
 package models
 
 import (
-	"strings"
-	"time"
-
 	"github.com/hjkelly/zbbapi/common"
 	uuid "github.com/satori/go.uuid"
 )
@@ -32,13 +29,27 @@ type Budget struct {
 	Timestamped
 }
 
+func (b Budget) Validate() *common.ValidationError {
+	possibleErrors := []*common.ValidationError{}
+	for _, income := range b.Income {
+		possibleErrors = append(possibleErrors, income.Validate())
+	}
+	for _, bill := range b.Bills {
+		possibleErrors = append(possibleErrors, bill.Validate())
+	}
+	for _, expense := range b.Expenses {
+		possibleErrors = append(possibleErrors, expense.Validate())
+	}
+	return common.CombineErrors(possibleErrors...)
+}
+
 type BudgetIncome struct {
 	CategoryRefAndAmount
 	Schedule `json:"schedule"`
 }
 
 func (i BudgetIncome) Validate() *common.ValidationError {
-	return CombineErrors(
+	return common.CombineErrors(
 		i.CategoryRefAndAmount.Validate(),
 		i.Schedule.Validate(),
 	)
@@ -52,9 +63,17 @@ type BudgetBill struct {
 	IsPaidAutomatically bool `json:"isPaidAutomatically"`
 }
 
+func (i BudgetBill) Validate() *common.ValidationError {
+	return nil
+}
+
 // Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
 type BudgetExpense struct {
 	CategoryRefAndAmount
+}
+
+func (i BudgetExpense) Validate() *common.ValidationError {
+	return nil
 }
 
 // -----------------------------------------------------------------------------
@@ -82,63 +101,4 @@ type ChecklistItem struct {
 type PayPeriodCalculations struct {
 	Total      Amount
 	Categories []CategoryRefAndAmount
-}
-
-// -----------------------------------------------------------------------------
-// Abstract types useful for composition, but without DB stores of their own.
-// -----------------------------------------------------------------------------
-
-type Amount struct {
-	AmountCents uint64 `json:"amount"`
-}
-
-type CategoryRefAndAmount struct {
-	CategoryID uuid.UUID `json:"categoryID"`
-	Amount
-}
-
-const SCHEDULE_TYPES = []string{"yearly", "quarterly", "monthly", "biweekly", "weekly"}
-
-type Schedule struct {
-	Type        string       `json:"type"`
-	DaysOfMonth []int        `json:"daysOfMonth,omitempty"`
-	StartDate   *common.Date `json:"startDate,omitempty"`
-}
-
-func (s Schedule) Validate() *common.ValidationError {
-	if _, ok := SCHEDULE_TYPE_MAP[s.Type]; ok == False {
-		return common.NewValidationError("type", common.FIELD_BAD_ENUM_CHOICE, "You must choose one of the following schedule types: "+strings.Join(SCHEDULE_TYPES, ", "))
-	}
-	if s.Type == "monthly" {
-		if len(s.DaysOfMonth) == 0 {
-			return common.NewValidationError("daysOfMonth", common.FIELD_MISSING, "With a monthly schedule, you must provide one or more days of the month.")
-		}
-		for _, day := range s.DaysOfMonth {
-			if day < 1 || day > 31 {
-				return common.NewValidationError("daysOfMonth", common.FIELD_OUT_OF_RANGE, "Days of the month must be between 1 and 31 (inclusive).")
-			}
-		}
-	} else {
-		if s.StartDate == nil || s.StartDate.IsZero() {
-			return common.NewValidationError("daysOfMonth", common.FIELD_MISSING, "Unless the schedule is monthly, you must provide a start date.")
-		}
-		if s.StartDate.IsValid() == false {
-			return common.NewValidationError("daysOfMonth", common.FIELD_OUT_OF_RANGE, "This doesn't appear to be a valid date. Perhaps there aren't that many days in this month?")
-		}
-	}
-	return nil
-}
-
-type Timestamped struct {
-	Created  time.Time `json:"created"`
-	Modified time.Time `json:"modified"`
-}
-
-func (t *Timestamped) SetCreationTimestamp() {
-	t.Created = time.Now()
-	t.Modified = time.Now()
-}
-
-func (t *Timestamped) SetModificationTimestamp() {
-	t.Modified = time.Now()
 }
