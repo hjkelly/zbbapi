@@ -15,7 +15,7 @@ type Amount struct {
 	AmountCents int64 `json:"amount"`
 }
 
-func (a Amount) Validate() *common.ValidationError {
+func (a Amount) Validate() error {
 	if a.AmountCents < 0 {
 		return common.NewValidationError("amount", common.FIELD_OUT_OF_RANGE, "The amount cannot be negative.")
 	}
@@ -27,7 +27,7 @@ type CategoryRefAndAmount struct {
 	Amount
 }
 
-func (cram CategoryRefAndAmount) Validate() *common.ValidationError {
+func (cram CategoryRefAndAmount) Validate() error {
 	idErr := new(common.ValidationError)
 	if cram.CategoryID == uuid.FromBytesOrNil([]byte{}) {
 		idErr = common.NewValidationError("categoryID", common.FIELD_MISSING, "You must reference a category's ID, which is a UUID.")
@@ -55,7 +55,7 @@ func IsScheduleType(input string) bool {
 	return false
 }
 
-func (s Schedule) Validate() *common.ValidationError {
+func (s Schedule) Validate() error {
 	if IsScheduleType(s.Type) == false {
 		return common.NewValidationError("type", common.FIELD_BAD_ENUM_CHOICE, "You must choose one of the following schedule types: "+strings.Join(SCHEDULE_TYPES, ", "))
 	}

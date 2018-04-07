@@ -1,6 +1,7 @@
 package common
 
 import (
+	"log"
 	"strings"
 )
 
@@ -98,21 +99,35 @@ func NewValidationError(fieldName, code, message string) *ValidationError {
 }
 
 // AddValidationContext prefixes any problematic field's names with some parent field.
-func (e ValidationError) AddValidationContext(fieldName string) ValidationError {
-	for _, field := range e.Fields {
-		field.FieldName = fieldName + "." + field.FieldName
+func AddValidationContext(err error, fieldName string) error {
+	if err == nil {
+		return nil
 	}
-	return e
+	validationErr, ok := err.(*ValidationError)
+	if !ok {
+		log.Printf("One of the errors passed to PrefixFieldNames was not a ValidationError like expected! %#v", err)
+		return err
+	}
+	for idx, field := range validationErr.Fields {
+		withoutContext := field.FieldName
+		validationErr.Fields[idx].FieldName = fieldName + "." + withoutContext
+	}
+	return validationErr
 }
 
 // CombineErrors takes several errors and returns a single validation error.
-func CombineErrors(errors ...*ValidationError) *ValidationError {
+func CombineErrors(errs ...error) error {
 	fields := make([]InvalidField, 0, 5)
-	for _, err := range errors {
+	for _, err := range errs {
 		if err == nil {
 			continue
 		}
-		for _, field := range err.Fields {
+		validationErr, ok := err.(*ValidationError)
+		if !ok {
+			log.Printf("One of the errors passed to CombineErrors was not a ValidationError like expected! %#v", err)
+			return err
+		}
+		for _, field := range validationErr.Fields {
 			fields = append(fields, field)
 		}
 	}
