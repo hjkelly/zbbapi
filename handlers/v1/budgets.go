@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/hjkelly/zbbapi/common"
-	"github.com/hjkelly/zbbapi/controllers/budgets"
 	"github.com/hjkelly/zbbapi/models"
+	"github.com/hjkelly/zbbapi/services/budgets"
 	"github.com/julienschmidt/httprouter"
 )
 
