@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Delete uses the datastore to remove this ID, if it exists.
 func Delete(id string) error {
 	ds := newDatastore()
 	err := ds.C().Remove(bson.M{
@@ -15,9 +16,8 @@ func Delete(id string) error {
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			return common.NotFoundErr
-		} else {
-			return err
 		}
+		return err
 	}
 	return nil
 }

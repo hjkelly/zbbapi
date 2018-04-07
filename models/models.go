@@ -1,8 +1,7 @@
 package models
 
 import (
-	"time"
-
+	"github.com/hjkelly/zbbapi/common"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -17,46 +16,14 @@ type Category struct {
 }
 
 // -----------------------------------------------------------------------------
-// Budget types: Used to plan for your typical/expected month.
-// -----------------------------------------------------------------------------
-
-type Budget struct {
-	ID       uuid.UUID
-	Paydays  Schedule // TODO: separate from yearly schedule
-	Income   []BudgetIncome
-	Bills    []BudgetBill
-	Expenses []BudgetExpense
-	//Goal         []BudgetGoal
-	//GoalStrategy string
-}
-
-type BudgetIncome struct {
-	CategoryRefAndAmount
-}
-
-// Bills may occur weekly, biweekly, semimonthly, monthly, or annually, but that frequency determines when each transaction will occur.
-type BudgetBill struct {
-	CategoryRefAndAmount
-	Schedule
-	IsAmountExact       bool
-	IsPaidAutomatically bool
-}
-
-// Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
-type BudgetExpense struct {
-	CategoryRefAndAmount
-	IsAmountExact bool
-}
-
-// -----------------------------------------------------------------------------
 // Pay period types: Handling actual income/expenses amounts for each pay period.
 // -----------------------------------------------------------------------------
 
 type PayPeriod struct {
 	ID                 uuid.UUID
 	BudgetID           uuid.UUID
-	StartDate          string // TODO date
-	EndDate            string // TODO date
+	StartDate          common.Date
+	EndDate            common.Date
 	ExactIncomes       []CategoryRefAndAmount
 	ExactBills         []CategoryRefAndAmount
 	ExactExpenses      []CategoryRefAndAmount
@@ -73,38 +40,4 @@ type ChecklistItem struct {
 type PayPeriodCalculations struct {
 	Total      Amount
 	Categories []CategoryRefAndAmount
-}
-
-// -----------------------------------------------------------------------------
-// Abstract types useful for composition, but without DB stores of their own.
-// -----------------------------------------------------------------------------
-
-type Amount struct {
-	AmountCents uint
-}
-
-type CategoryRefAndAmount struct {
-	CategoryID uuid.UUID
-	Amount
-}
-
-type Schedule struct {
-	YearlyStartDate   string // TODO: date
-	MonthlyOnDays     []uint
-	BiweeklyStartDate string // TODO: date
-	WeeklyStartDate   string // TODO: date
-}
-
-type Timestamped struct {
-	Created  time.Time `json:"created"`
-	Modified time.Time `json:"modified"`
-}
-
-func (t *Timestamped) SetCreationTimestamp() {
-	t.Created = time.Now()
-	t.Modified = time.Now()
-}
-
-func (t *Timestamped) SetModificationTimestamp() {
-	t.Modified = time.Now()
 }

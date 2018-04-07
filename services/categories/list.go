@@ -5,6 +5,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// List returns all Categories from the database.
 func List() ([]models.Category, error) {
 	ds := newDatastore()
 	results := make([]models.Category, 0)
