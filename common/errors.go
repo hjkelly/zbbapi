@@ -74,19 +74,20 @@ type InvalidField struct {
 
 // These are codes for errors on fields (`InvalidField`).
 const (
-	FIELD_MISSING         string = "MISSING"
-	FIELD_BAD_ENUM_CHOICE string = "BAD_ENUM_CHOICE"
-	FIELD_OUT_OF_RANGE    string = "OUT_OF_RANGE"
+	MissingCode       string = "MISSING"
+	BadEnumChoiceCode string = "BAD_ENUM_CHOICE"
+	OutOfRangeCode    string = "OUT_OF_RANGE"
 )
 
-const INVALID_DATA_MESSAGE = "One or more fields was either missing or invalid."
+const invalidDataCode = "INVALID_DATA"
+const invalidDataMessage = "One or more fields was either missing or invalid."
 
 // NewValidationError creates a new ValidationError with code INVALID_DATA and instantiates a single field error.
 func NewValidationError(fieldName, code, message string) *ValidationError {
 	return &ValidationError{
 		BasicError: BasicError{
-			Code:    "INVALID_DATA",
-			Message: INVALID_DATA_MESSAGE,
+			Code:    invalidDataCode,
+			Message: invalidDataMessage,
 		},
 		Fields: []InvalidField{
 			{
@@ -136,8 +137,8 @@ func CombineErrors(errs ...error) error {
 	}
 	return &ValidationError{
 		BasicError: BasicError{
-			Code:    "INVALID_DATA",
-			Message: INVALID_DATA_MESSAGE,
+			Code:    invalidDataCode,
+			Message: invalidDataMessage,
 		},
 		Fields: fields,
 	}

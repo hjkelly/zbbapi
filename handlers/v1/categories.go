@@ -48,15 +48,6 @@ func retrieveCategory(w http.ResponseWriter, r *http.Request, params httprouter.
 	common.WriteResponse(w, 200, result)
 }
 
-func deleteCategory(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	err := categories.Delete(params.ByName("id"))
-	if err != nil {
-		common.WriteErrorResponse(w, err)
-		return
-	}
-	common.WriteResponse(w, 204, nil)
-}
-
 func updateCategory(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	// Parse the request body.
 	var category models.Category
@@ -73,4 +64,13 @@ func updateCategory(w http.ResponseWriter, r *http.Request, params httprouter.Pa
 		return
 	}
 	common.WriteResponse(w, 200, result)
+}
+
+func deleteCategory(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	err := categories.Delete(params.ByName("id"))
+	if err != nil {
+		common.WriteErrorResponse(w, err)
+		return
+	}
+	common.WriteResponse(w, 204, nil)
 }

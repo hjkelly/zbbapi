@@ -1,4 +1,4 @@
-package categories
+package budgets
 
 import (
 	"github.com/hjkelly/zbbapi/common"
@@ -8,12 +8,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// UpdateID finds the current Category by ID, updates all its user-updatable fields, and saves it again.
-func UpdateID(id string, input models.Category) (*models.Category, error) {
+// UpdateID finds the current Budget by ID, updates all its user-updatable fields, and saves it again.
+func UpdateID(id string, input models.Budget) (*models.Budget, error) {
 	ds := newDatastore()
 
 	// Make sure the one we're updating exists.
-	current := models.Category{}
+	current := models.Budget{}
 	err := ds.C().Find(bson.M{
 		"_id": uuid.FromStringOrNil(id),
 	}).One(&current)

@@ -7,6 +7,7 @@ import (
 
 // Create validates and preps a Category, then saves it via the controller's datastore.
 func Create(input models.Category) (*models.Category, error) {
+	input = sanitize(input)
 	// Did they give us enough to save?
 	err := validate(input)
 	if err != nil {

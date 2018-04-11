@@ -1,9 +1,17 @@
 package categories
 
 import (
+	"strings"
+
 	"github.com/hjkelly/zbbapi/common"
 	"github.com/hjkelly/zbbapi/models"
 )
+
+// Do any trimming, cleanup before validation.
+func sanitize(input models.Category) models.Category {
+	input.Name = strings.TrimSpace(input.Name)
+	return input
+}
 
 // Make sure this category has input sufficient enough to be saved.
 func validate(input models.Category) error {
