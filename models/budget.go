@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/hjkelly/zbbapi/common"
-	uuid "github.com/satori/go.uuid"
 )
 
 // -----------------------------------------------------------------------------
@@ -12,19 +11,31 @@ import (
 // -----------------------------------------------------------------------------
 
 type Budget struct {
-	ID       uuid.UUID          `json:"id" bson:"_id"`
+	ID       SafeUUID           `json:"id" bson:"_id"`
 	Incomes  ManyBudgetIncomes  `json:"incomes"`
 	Bills    ManyBudgetBills    `json:"bills"`
 	Expenses ManyBudgetExpenses `json:"expenses"`
 	Timestamped
 }
 
-func (b Budget) Validate() error {
-	return common.CombineErrors(
-		b.Incomes.Validate(),
-		b.Bills.Validate(),
-		b.Expenses.Validate(),
+func (b Budget) GetValidated() (Budget, error) {
+	cleanIncomes, incomesErr := b.Incomes.GetValidated()
+	cleanBills, billsErr := b.Bills.GetValidated()
+	cleanExpenses, expensesErr := b.Expenses.GetValidated()
+
+	err := common.CombineErrors(
+		common.AddValidationContext(incomesErr, "incomes"),
+		common.AddValidationContext(billsErr, "bills"),
+		common.AddValidationContext(expensesErr, "expenses"),
 	)
+	if err != nil {
+		return Budget{}, err
+	}
+
+	b.Incomes = cleanIncomes
+	b.Bills = cleanBills
+	b.Expenses = cleanExpenses
+	return b, nil
 }
 
 type BudgetIncome struct {
@@ -32,21 +43,39 @@ type BudgetIncome struct {
 	Schedule `json:"schedule"`
 }
 
-func (i BudgetIncome) Validate() error {
-	return common.CombineErrors(
-		i.CategoryRefAndAmount.Validate(),
-		common.AddValidationContext(i.Schedule.Validate(), "schedule"),
+func (i BudgetIncome) GetValidated() (BudgetIncome, error) {
+	cleanCRAM, cramErr := i.CategoryRefAndAmount.GetValidated()
+	cleanSchedule, scheduleErr := i.Schedule.GetValidated()
+
+	err := common.CombineErrors(
+		cramErr,
+		common.AddValidationContext(scheduleErr, "schedule"),
 	)
+	if err != nil {
+		return BudgetIncome{}, err
+	}
+
+	i.CategoryRefAndAmount = cleanCRAM
+	i.Schedule = cleanSchedule
+	return i, nil
 }
 
 type ManyBudgetIncomes []BudgetIncome
 
-func (incomes ManyBudgetIncomes) Validate() error {
+func (incomes ManyBudgetIncomes) GetValidated() (ManyBudgetIncomes, error) {
 	errs := make([]error, 0)
 	for idx, income := range incomes {
-		errs = append(errs, common.AddValidationContext(income.Validate(), strconv.Itoa(idx)))
+		var incomeErr error
+		incomes[idx], incomeErr = income.GetValidated()
+		errs = append(errs, common.AddValidationContext(incomeErr, strconv.Itoa(idx)))
 	}
-	return common.AddValidationContext(common.CombineErrors(errs...), "incomes")
+
+	err := common.CombineErrors(errs...)
+	if err != nil {
+		return ManyBudgetIncomes{}, err
+	}
+
+	return incomes, nil
 }
 
 // Bills may occur weekly, biweekly, semimonthly, monthly, or annually, but that frequency determines when each transaction should occur.
@@ -57,21 +86,39 @@ type BudgetBill struct {
 	IsPaidAutomatically bool `json:"isPaidAutomatically"`
 }
 
-func (i BudgetBill) Validate() error {
-	return common.CombineErrors(
-		i.CategoryRefAndAmount.Validate(),
-		common.AddValidationContext(i.Schedule.Validate(), "schedule"),
+func (b BudgetBill) GetValidated() (BudgetBill, error) {
+	cleanCRAM, cramErr := b.CategoryRefAndAmount.GetValidated()
+	cleanSchedule, scheduleErr := b.Schedule.GetValidated()
+
+	err := common.CombineErrors(
+		cramErr,
+		common.AddValidationContext(scheduleErr, "schedule"),
 	)
+	if err != nil {
+		return BudgetBill{}, err
+	}
+
+	b.CategoryRefAndAmount = cleanCRAM
+	b.Schedule = cleanSchedule
+	return b, nil
 }
 
 type ManyBudgetBills []BudgetBill
 
-func (bills ManyBudgetBills) Validate() error {
+func (bills ManyBudgetBills) GetValidated() (ManyBudgetBills, error) {
 	errs := make([]error, 0)
 	for idx, bill := range bills {
-		errs = append(errs, common.AddValidationContext(bill.Validate(), strconv.Itoa(idx)))
+		var billErr error
+		bills[idx], billErr = bill.GetValidated()
+		errs = append(errs, common.AddValidationContext(billErr, strconv.Itoa(idx)))
 	}
-	return common.AddValidationContext(common.CombineErrors(errs...), "bills")
+
+	err := common.CombineErrors(errs...)
+	if err != nil {
+		return ManyBudgetBills{}, err
+	}
+
+	return bills, nil
 }
 
 // Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
@@ -79,16 +126,29 @@ type BudgetExpense struct {
 	CategoryRefAndAmount
 }
 
-func (i BudgetExpense) Validate() error {
-	return i.CategoryRefAndAmount.Validate()
+func (e BudgetExpense) GetValidated() (BudgetExpense, error) {
+	cleanCRAM, cramErr := e.CategoryRefAndAmount.GetValidated()
+	if cramErr != nil {
+		return BudgetExpense{}, cramErr
+	}
+	e.CategoryRefAndAmount = cleanCRAM
+	return e, nil
 }
 
 type ManyBudgetExpenses []BudgetExpense
 
-func (expenses ManyBudgetExpenses) Validate() error {
+func (expenses ManyBudgetExpenses) GetValidated() (ManyBudgetExpenses, error) {
 	errs := make([]error, 0)
 	for idx, expense := range expenses {
-		errs = append(errs, common.AddValidationContext(expense.Validate(), strconv.Itoa(idx)))
+		var expenseErr error
+		expenses[idx], expenseErr = expense.GetValidated()
+		errs = append(errs, common.AddValidationContext(expenseErr, strconv.Itoa(idx)))
 	}
-	return common.AddValidationContext(common.CombineErrors(errs...), "expenses")
+
+	err := common.CombineErrors(errs...)
+	if err != nil {
+		return ManyBudgetExpenses{}, err
+	}
+
+	return expenses, nil
 }

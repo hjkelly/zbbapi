@@ -25,8 +25,7 @@ func UpdateID(id string, input models.Budget) (*models.Budget, error) {
 	}
 
 	// Validate the input and use it to update the current data.
-	input = sanitize(input)
-	err = validate(input)
+	input, err = getValidated(input)
 	if err != nil {
 		return nil, err
 	}

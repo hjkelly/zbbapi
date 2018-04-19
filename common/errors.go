@@ -74,9 +74,13 @@ type InvalidField struct {
 
 // These are codes for errors on fields (`InvalidField`).
 const (
-	MissingCode       string = "MISSING"
-	BadEnumChoiceCode string = "BAD_ENUM_CHOICE"
-	OutOfRangeCode    string = "OUT_OF_RANGE"
+	MissingCode         string = "MISSING"
+	BadEnumChoiceCode   string = "BAD_ENUM_CHOICE"
+	BadDateFormatCode   string = "BAD_DATE_FORMAT"
+	NonexistentDateCode string = "NONEXISTENT_DATE"
+	BadUUIDFormatCode   string = "BAD_UUID_FORMAT"
+	NonexistentRefCode  string = "NONEXISTENT_REF"
+	NumOutOfRangeCode   string = "NUM_OUT_OF_RANGE"
 )
 
 const invalidDataCode = "INVALID_DATA"
@@ -111,7 +115,12 @@ func AddValidationContext(err error, fieldName string) error {
 	}
 	for idx, field := range validationErr.Fields {
 		withoutContext := field.FieldName
-		validationErr.Fields[idx].FieldName = fieldName + "." + withoutContext
+		// Most of the time, we'll be prefixing the context-less fieldname, but if there is no fieldname (sometimes useful for centralized validation like SafeUUID), just add the context as the field name.
+		if len(withoutContext) > 0 {
+			validationErr.Fields[idx].FieldName = fieldName + "." + withoutContext
+		} else {
+			validationErr.Fields[idx].FieldName = fieldName
+		}
 	}
 	return validationErr
 }

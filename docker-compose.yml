@@ -15,7 +15,6 @@ services:
     api:
         build:
             context: ./
-            dockerfile: Dockerfiles/dev
         links:
         - mongodb
         depends_on:
