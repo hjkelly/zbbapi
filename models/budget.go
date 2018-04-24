@@ -10,6 +10,7 @@ import (
 // Budget types: Used to plan for your typical/expected month.
 // -----------------------------------------------------------------------------
 
+// Budget holds incomes, bills, expenses, and goals that define your expectation/plan for a typical month.
 type Budget struct {
 	ID       SafeUUID           `json:"id" bson:"_id"`
 	Incomes  ManyBudgetIncomes  `json:"incomes"`
@@ -18,6 +19,7 @@ type Budget struct {
 	Timestamped
 }
 
+// GetValidated returns a sanitized copy if all incomes, bills, expenses, and goals are properly defined; otherwise, it returns an error.
 func (b Budget) GetValidated() (Budget, error) {
 	cleanIncomes, incomesErr := b.Incomes.GetValidated()
 	cleanBills, billsErr := b.Bills.GetValidated()
@@ -38,11 +40,13 @@ func (b Budget) GetValidated() (Budget, error) {
 	return b, nil
 }
 
+// BudgetIncome stores a single category reference, its amount within this budget, and the payday schedule.
 type BudgetIncome struct {
 	CategoryRefAndAmount
 	Schedule `json:"schedule"`
 }
 
+// GetValidated returns a sanitized copy if the category, amount, and schedule are properly defined; otherwise, it returns an error.
 func (i BudgetIncome) GetValidated() (BudgetIncome, error) {
 	cleanCRAM, cramErr := i.CategoryRefAndAmount.GetValidated()
 	cleanSchedule, scheduleErr := i.Schedule.GetValidated()
@@ -60,8 +64,10 @@ func (i BudgetIncome) GetValidated() (BudgetIncome, error) {
 	return i, nil
 }
 
+// ManyBudgetIncomes groups several incomes together in a way that makes validation easier.
 type ManyBudgetIncomes []BudgetIncome
 
+// GetValidated returns a sanitized copy if all incomes are properly defined; otherwise, it returns an error.
 func (incomes ManyBudgetIncomes) GetValidated() (ManyBudgetIncomes, error) {
 	errs := make([]error, 0)
 	for idx, income := range incomes {
@@ -78,7 +84,7 @@ func (incomes ManyBudgetIncomes) GetValidated() (ManyBudgetIncomes, error) {
 	return incomes, nil
 }
 
-// Bills may occur weekly, biweekly, semimonthly, monthly, or annually, but that frequency determines when each transaction should occur.
+// BudgetBill marks a single bill that will need to be paid: the category, expected/average amount, and schedule (along with some other details). Unlike expenses, bills are expected to be a single transaction rather than a 'fund' for many transactions.
 type BudgetBill struct {
 	CategoryRefAndAmount
 	Schedule            `json:"schedule"`
@@ -86,6 +92,7 @@ type BudgetBill struct {
 	IsPaidAutomatically bool `json:"isPaidAutomatically"`
 }
 
+// GetValidated returns a sanitized copy if the category, amount, and schedule are properly defined; otherwise, it returns an error.
 func (b BudgetBill) GetValidated() (BudgetBill, error) {
 	cleanCRAM, cramErr := b.CategoryRefAndAmount.GetValidated()
 	cleanSchedule, scheduleErr := b.Schedule.GetValidated()
@@ -103,8 +110,10 @@ func (b BudgetBill) GetValidated() (BudgetBill, error) {
 	return b, nil
 }
 
+// ManyBudgetBills groups several bills together in a way that makes validation easier.
 type ManyBudgetBills []BudgetBill
 
+// GetValidated returns a sanitized copy if all bills are properly defined; otherwise, it returns an error.
 func (bills ManyBudgetBills) GetValidated() (ManyBudgetBills, error) {
 	errs := make([]error, 0)
 	for idx, bill := range bills {
@@ -121,11 +130,12 @@ func (bills ManyBudgetBills) GetValidated() (ManyBudgetBills, error) {
 	return bills, nil
 }
 
-// Expenses set aside money to cover costs of things. Perhaps you don't use any of it, or perhaps you go over.
+// BudgetExpense set aside money to cover costs of expenses. Perhaps you don't use any of it, or perhaps you go over.
 type BudgetExpense struct {
 	CategoryRefAndAmount
 }
 
+// GetValidated returns a sanitized copy if the category and amount are properly defined; otherwise, it returns an error.
 func (e BudgetExpense) GetValidated() (BudgetExpense, error) {
 	cleanCRAM, cramErr := e.CategoryRefAndAmount.GetValidated()
 	if cramErr != nil {
@@ -135,8 +145,10 @@ func (e BudgetExpense) GetValidated() (BudgetExpense, error) {
 	return e, nil
 }
 
+// ManyBudgetExpenses groups several expenses together in a way that makes validation easier.
 type ManyBudgetExpenses []BudgetExpense
 
+// GetValidated returns a sanitized copy if all expenses are properly defined; otherwise, it returns an error.
 func (expenses ManyBudgetExpenses) GetValidated() (ManyBudgetExpenses, error) {
 	errs := make([]error, 0)
 	for idx, expense := range expenses {

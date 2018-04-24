@@ -6,16 +6,6 @@ import (
 )
 
 // -----------------------------------------------------------------------------
-// Category types: Obviously a name, but also an ID for specificity and name changes.
-// -----------------------------------------------------------------------------
-
-type Category struct {
-	ID   uuid.UUID `json:"id" bson:"_id"`
-	Name string    `json:"name"`
-	Timestamped
-}
-
-// -----------------------------------------------------------------------------
 // Pay period types: Handling actual income/expenses amounts for each pay period.
 // -----------------------------------------------------------------------------
 

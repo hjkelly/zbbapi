@@ -6,15 +6,18 @@ import (
 	"github.com/hjkelly/zbbapi/common"
 )
 
+// These are the valid schedule types.
 var SCHEDULE_TYPES = []string{"yearly", "quarterly", "monthly", "biweekly", "weekly"}
 
+// Schedule defines when an event is expected to occur. Depending on the type, you'll have to provide at least one other piece of info so the event can be predicted.
 type Schedule struct {
 	Type        string       `json:"type"`
 	DaysOfMonth []int        `json:"daysOfMonth,omitempty"`
 	StartDate   *common.Date `json:"startDate,omitempty"`
 }
 
-func IsScheduleType(input string) bool {
+// IsValidScheduleType ensures the string is a valid type.
+func IsValidScheduleType(input string) bool {
 	for _, schedType := range SCHEDULE_TYPES {
 		if input == schedType {
 			return true
@@ -23,8 +26,9 @@ func IsScheduleType(input string) bool {
 	return false
 }
 
+// GetValidated returns a sanitized schedule if the type and other sometimes-required attributes are in order; otherwise, returns an error.
 func (s Schedule) GetValidated() (Schedule, error) {
-	if IsScheduleType(s.Type) == false {
+	if IsValidScheduleType(s.Type) == false {
 		return s, common.NewValidationError("type", common.BadEnumChoiceCode, "You must choose one of the following schedule types: "+strings.Join(SCHEDULE_TYPES, ", "))
 	}
 	// If it's monthly, validate the days.
