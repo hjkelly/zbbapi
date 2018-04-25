@@ -39,7 +39,7 @@ func (e BasicError) Error() string {
 	return e.Message
 }
 
-// Validation Errors
+// ValidationError extends BasicError to include an array of fields that failed validation.
 type ValidationError struct {
 	BasicError
 	Fields []InvalidField `json:"fields,omitempty"`
@@ -137,9 +137,7 @@ func CombineErrors(errs ...error) error {
 			log.Printf("One of the errors passed to CombineErrors was not a ValidationError like expected! %#v", err)
 			return err
 		}
-		for _, field := range validationErr.Fields {
-			fields = append(fields, field)
-		}
+		fields = append(fields, validationErr.Fields...)
 	}
 	if len(fields) == 0 {
 		return nil

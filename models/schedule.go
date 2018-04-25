@@ -6,8 +6,8 @@ import (
 	"github.com/hjkelly/zbbapi/common"
 )
 
-// These are the valid schedule types.
-var SCHEDULE_TYPES = []string{"yearly", "quarterly", "monthly", "biweekly", "weekly"}
+// ScheduleTypes is an array of the valid schedule type strings. These can be advertised as part of the API/docs.
+var ScheduleTypes = []string{"yearly", "quarterly", "monthly", "biweekly", "weekly"}
 
 // Schedule defines when an event is expected to occur. Depending on the type, you'll have to provide at least one other piece of info so the event can be predicted.
 type Schedule struct {
@@ -18,7 +18,7 @@ type Schedule struct {
 
 // IsValidScheduleType ensures the string is a valid type.
 func IsValidScheduleType(input string) bool {
-	for _, schedType := range SCHEDULE_TYPES {
+	for _, schedType := range ScheduleTypes {
 		if input == schedType {
 			return true
 		}
@@ -28,8 +28,8 @@ func IsValidScheduleType(input string) bool {
 
 // GetValidated returns a sanitized schedule if the type and other sometimes-required attributes are in order; otherwise, returns an error.
 func (s Schedule) GetValidated() (Schedule, error) {
-	if IsValidScheduleType(s.Type) == false {
-		return s, common.NewValidationError("type", common.BadEnumChoiceCode, "You must choose one of the following schedule types: "+strings.Join(SCHEDULE_TYPES, ", "))
+	if !IsValidScheduleType(s.Type) {
+		return s, common.NewValidationError("type", common.BadEnumChoiceCode, "You must choose one of the following schedule types: "+strings.Join(ScheduleTypes, ", "))
 	}
 	// If it's monthly, validate the days.
 	if s.Type == "monthly" {
@@ -45,7 +45,7 @@ func (s Schedule) GetValidated() (Schedule, error) {
 		if s.StartDate == nil || s.StartDate.IsZero() {
 			return s, common.NewValidationError("startDate", common.MissingCode, "Unless the schedule is monthly, you must provide a start date.")
 		}
-		if s.StartDate.IsValid() == false {
+		if !s.StartDate.IsValid() {
 			return s, common.NewValidationError("startDate", common.NonexistentDateCode, "This doesn't appear to be a valid date. Perhaps there aren't that many days in this month?")
 		}
 	}

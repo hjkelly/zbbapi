@@ -1,7 +1,3 @@
-/*
-This code was taken from / inspired by Google Cloud's `civil` project and modified so it would unmarshal valid dates properly, rather than failing.
-https://github.com/GoogleCloudPlatform/google-cloud-go/blob/master/civil/civil.go
-*/
 package common
 
 import (
@@ -10,6 +6,11 @@ import (
 	"strconv"
 	"time"
 )
+
+/*
+This code was taken from / inspired by Google Cloud's `civil` project and modified so it would unmarshal valid dates properly, rather than failing.
+https://github.com/GoogleCloudPlatform/google-cloud-go/blob/master/civil/civil.go
+*/
 
 // A Date represents a date (year, month, day).
 // This type does not include location information, and therefore does not
@@ -27,11 +28,12 @@ func DateOf(t time.Time) Date {
 	return d
 }
 
-var DATE_PATTERN = regexp.MustCompile("^([0-9]{4})-([0-9]{2})-([0-9]{2})$")
+// DatePattern is the RFC3339 full-date format and should be used for all start dates in schedules.
+var DatePattern = regexp.MustCompile("^([0-9]{4})-([0-9]{2})-([0-9]{2})$")
 
 // ParseDate parses a valid-seeming RFC339 date string without regard for whether or not the numbers make sense.
 func ParseDate(s string) (Date, error) {
-	match := DATE_PATTERN.FindStringSubmatch(s)
+	match := DatePattern.FindStringSubmatch(s)
 	if len(match) != 4 {
 		return Date{}, fmt.Errorf("Dates must be formatted: YYYY-MM-DD")
 	}
@@ -86,20 +88,20 @@ func (d Date) DaysSince(s Date) (days int) {
 	return int(deltaUnix / 86400)
 }
 
-// Before reports whether d1 occurs before d2.
-func (d1 Date) Before(d2 Date) bool {
-	if d1.Year != d2.Year {
-		return d1.Year < d2.Year
+// Before reports whether d occurs before d2.
+func (d Date) Before(d2 Date) bool {
+	if d.Year != d2.Year {
+		return d.Year < d2.Year
 	}
-	if d1.Month != d2.Month {
-		return d1.Month < d2.Month
+	if d.Month != d2.Month {
+		return d.Month < d2.Month
 	}
-	return d1.Day < d2.Day
+	return d.Day < d2.Day
 }
 
-// After reports whether d1 occurs after d2.
-func (d1 Date) After(d2 Date) bool {
-	return d2.Before(d1)
+// After reports whether d occurs after d2.
+func (d Date) After(d2 Date) bool {
+	return d2.Before(d)
 }
 
 // MarshalText implements the encoding.TextMarshaler interface.
