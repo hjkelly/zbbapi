@@ -1,16 +1,14 @@
-package budgets
+package plans
 
 import (
 	"github.com/hjkelly/zbbapi/models"
 )
 
-// Create validates and preps a Budget, then saves it via the controller's datastore.
-func Create(input models.Budget) (*models.Budget, error) {
+// Create validates and preps a Plan, then saves it via the controller's datastore.
+func Create(input models.Plan) (*models.Plan, error) {
+	// Did they give us enough to save?
 	var err error
 	input, err = getValidated(input)
-	if err != nil {
-		return nil, err
-	}
 	if err != nil {
 		return nil, err
 	}

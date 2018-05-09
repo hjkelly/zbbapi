@@ -1,7 +1,8 @@
-package budgets
+package plans
 
 import (
 	"github.com/hjkelly/zbbapi/common"
+	uuid "github.com/satori/go.uuid"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -10,7 +11,7 @@ import (
 func Delete(id string) error {
 	ds := newDatastore()
 	err := ds.C().Remove(bson.M{
-		"_id": id,
+		"_id": uuid.FromStringOrNil(id),
 	})
 	if err != nil {
 		if err == mgo.ErrNotFound {

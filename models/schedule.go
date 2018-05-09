@@ -46,7 +46,7 @@ func (s Schedule) GetValidated() (Schedule, error) {
 			return s, common.NewValidationError("startDate", common.MissingCode, "Unless the schedule is monthly, you must provide a start date.")
 		}
 		if !s.StartDate.IsValid() {
-			return s, common.NewValidationError("startDate", common.NonexistentDateCode, "This doesn't appear to be a valid date. Perhaps there aren't that many days in this month?")
+			return s, common.NewValidationError("startDate", common.BadDateCode, "This doesn't appear to be a valid date. Perhaps there aren't that many days in this month?")
 		}
 	}
 	return s, nil

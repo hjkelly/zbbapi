@@ -59,6 +59,15 @@ func (d Date) IsZero() bool {
 	return d == Date{}
 }
 
+func (d Date) ValidateNonZero() error {
+	if d.IsZero() {
+		return NewValidationError("", MissingCode, "You must provide a start date.")
+	} else if !d.IsValid() {
+		return NewValidationError("", BadDateCode, "Start date must be in the format YYYY-MM-DD, and it must be a valid date.")
+	}
+	return nil
+}
+
 // In returns the time corresponding to time 00:00:00 of the date in the location.
 //
 // In is always consistent with time.Date, even when time.Date returns a time

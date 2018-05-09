@@ -74,13 +74,12 @@ type InvalidField struct {
 
 // These are codes for errors on fields (`InvalidField`).
 const (
-	MissingCode         string = "MISSING"
-	BadEnumChoiceCode   string = "BAD_ENUM_CHOICE"
-	BadDateFormatCode   string = "BAD_DATE_FORMAT"
-	NonexistentDateCode string = "NONEXISTENT_DATE"
-	BadUUIDFormatCode   string = "BAD_UUID_FORMAT"
-	NonexistentRefCode  string = "NONEXISTENT_REF"
-	NumOutOfRangeCode   string = "NUM_OUT_OF_RANGE"
+	MissingCode        string = "MISSING"
+	BadEnumChoiceCode  string = "BAD_ENUM_CHOICE"
+	BadDateCode        string = "BAD_DATE_FORMAT"
+	BadUUIDFormatCode  string = "BAD_UUID_FORMAT"
+	NonexistentRefCode string = "NONEXISTENT_REF"
+	NumOutOfRangeCode  string = "NUM_OUT_OF_RANGE"
 )
 
 const invalidDataCode = "INVALID_DATA"
