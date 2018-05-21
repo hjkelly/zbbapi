@@ -13,6 +13,7 @@ type Budget struct {
 	Expenses  NamesAndAmounts `json:"expenses"`
 	Savings   NamesAndAmounts `json:"savings"`
 	Checklist []ChecklistItem `json:"checklist"`
+	Balance   Amount
 	Timestamped
 }
 
@@ -43,6 +44,22 @@ func (budget Budget) GetValidated() (Budget, error) {
 	}
 
 	// TODO: make sure they didn't try to provide read-only/protected fields
+
+	// Calculate the balance.
+	balance := 0
+	for _, income := range budget.Incomes {
+		balance += income.Amount.AmountCents
+	}
+	for _, expense := range budget.Expenses {
+		balance -= expense.Amount.AmountCents
+	}
+	for _, bill := range budget.Bills {
+		balance -= bill.Amount.AmountCents
+	}
+	for _, saving := range budget.Savings {
+		balance -= saving.Amount.AmountCents
+	}
+	budget.Balance.AmountCents = balance
 
 	// Finalize the errors, if there were any.
 	err = common.CombineErrors(errs...)

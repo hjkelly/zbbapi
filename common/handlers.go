@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -21,20 +22,22 @@ func WriteResponse(w http.ResponseWriter, status int, data interface{}) {
 
 // WriteErrorResponse preps the response by trying to guess the type of the error.
 func WriteErrorResponse(w http.ResponseWriter, err error) {
-	if result, ok := GetError(err); ok {
-		// If it's our generic error, respond accordingly.
-		if result == ParseErr {
-			WriteResponse(w, 400, err)
-		} else if result == NotFoundErr {
-			WriteResponse(w, 404, err)
-		} else {
-			WriteResponse(w, 500, err)
-		}
-	} else if _, ok := GetValidationError(err); ok {
-		// If it's a validation error, handle that.
+	switch err.(type) {
+	case BasicError:
+		be := err.(BasicError)
+		WriteResponse(w, be.ResponseCode(), be)
+	case *BasicError:
+		be := err.(*BasicError)
+		WriteResponse(w, be.ResponseCode(), be)
+	case ValidationError, *ValidationError:
 		WriteResponse(w, 422, err)
-	} else {
-		// If it's just a generic error, respond and log an error.
+	case *json.UnmarshalTypeError:
+		ute := err.(*json.UnmarshalTypeError)
+		WriteResponse(w, 422, map[string]string{
+			"message": fmt.Sprintf("Got value of wrong type for %s. Expected %s, but got %s.", ute.Field, ute.Type, ute.Value),
+			"code":    "WRONG_TYPE",
+		})
+	default:
 		log.Println("Unexpected error: " + err.Error())
 		WriteResponse(w, 500, map[string]string{"message": "Sorry, something went wrong on our end. Try again later!"})
 	}

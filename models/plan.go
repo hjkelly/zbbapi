@@ -16,6 +16,7 @@ type Plan struct {
 	Incomes  ManyPlannedIncomes  `json:"incomes"`
 	Bills    ManyPlannedBills    `json:"bills"`
 	Expenses ManyPlannedExpenses `json:"expenses"`
+	// Savings ManySavings `json:"savings"`
 	Timestamped
 }
 
@@ -43,7 +44,7 @@ func (b Plan) GetValidated() (Plan, error) {
 // PlannedIncome stores a single category reference, its amount within this budget, and the payday schedule.
 type PlannedIncome struct {
 	NameAndAmount
-	Schedule `json:"schedule"`
+	Schedule `json:"every"`
 }
 
 // GetValidated returns a sanitized copy if the category, amount, and schedule are properly defined; otherwise, it returns an error.
@@ -53,7 +54,7 @@ func (i PlannedIncome) GetValidated() (PlannedIncome, error) {
 
 	err := common.CombineErrors(
 		cramErr,
-		common.AddValidationContext(scheduleErr, "schedule"),
+		common.AddValidationContext(scheduleErr, "every"),
 	)
 	if err != nil {
 		return PlannedIncome{}, err
@@ -87,7 +88,7 @@ func (incomes ManyPlannedIncomes) GetValidated() (ManyPlannedIncomes, error) {
 // PlannedBill marks a single bill that will need to be paid: the category, expected/average amount, and schedule (along with some other details). Unlike expenses, bills are expected to be a single transaction rather than a 'fund' for many transactions.
 type PlannedBill struct {
 	NameAndAmount
-	Schedule            `json:"schedule"`
+	Schedule            `json:"every"`
 	IsAmountExact       bool `json:"isAmountExact"`
 	IsPaidAutomatically bool `json:"isPaidAutomatically"`
 }
@@ -99,7 +100,7 @@ func (b PlannedBill) GetValidated() (PlannedBill, error) {
 
 	err := common.CombineErrors(
 		cramErr,
-		common.AddValidationContext(scheduleErr, "schedule"),
+		common.AddValidationContext(scheduleErr, "every"),
 	)
 	if err != nil {
 		return PlannedBill{}, err

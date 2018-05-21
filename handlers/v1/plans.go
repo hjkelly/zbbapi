@@ -25,11 +25,11 @@ func createPlan(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var plan models.Plan
 	err := json.NewDecoder(r.Body).Decode(&plan)
 	if err != nil {
-		log.Print(err.Error())
-		common.WriteErrorResponse(w, common.ParseErr)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 	// Save it.
+	log.Printf("now we are creating!")
 	result, err := plans.Create(plan)
 	if err != nil {
 		// TODO: Handle validation vs. DB error...

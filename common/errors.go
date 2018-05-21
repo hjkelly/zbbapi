@@ -39,6 +39,17 @@ func (e BasicError) Error() string {
 	return e.Message
 }
 
+// Lets each type be smart
+func (e BasicError) ResponseCode() int {
+	if e.Code == ParseErr.Code {
+		return 400
+	} else if e.Code == NotFoundErr.Code {
+		return 404
+	} else {
+		return 500
+	}
+}
+
 // ValidationError extends BasicError to include an array of fields that failed validation.
 type ValidationError struct {
 	BasicError
@@ -75,6 +86,7 @@ type InvalidField struct {
 // These are codes for errors on fields (`InvalidField`).
 const (
 	MissingCode        string = "MISSING"
+	TooManyCode        string = "TOO_MANY"
 	BadEnumChoiceCode  string = "BAD_ENUM_CHOICE"
 	BadDateCode        string = "BAD_DATE_FORMAT"
 	BadUUIDFormatCode  string = "BAD_UUID_FORMAT"

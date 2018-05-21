@@ -61,9 +61,9 @@ func (d Date) IsZero() bool {
 
 func (d Date) ValidateNonZero() error {
 	if d.IsZero() {
-		return NewValidationError("", MissingCode, "You must provide a start date.")
+		return NewValidationError("", MissingCode, "You must provide a date.")
 	} else if !d.IsValid() {
-		return NewValidationError("", BadDateCode, "Start date must be in the format YYYY-MM-DD, and it must be a valid date.")
+		return NewValidationError("", BadDateCode, "Date must be in the format YYYY-MM-DD, and it must be a valid date.")
 	}
 	return nil
 }
