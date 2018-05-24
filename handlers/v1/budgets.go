@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/hjkelly/zbbapi/common"
@@ -25,7 +24,6 @@ func createBudget(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var budget models.Budget
 	err := json.NewDecoder(r.Body).Decode(&budget)
 	if err != nil {
-		log.Print(err.Error())
 		common.WriteErrorResponse(w, common.ParseErr)
 		return
 	}
@@ -53,7 +51,6 @@ func updateBudget(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	var budget models.Budget
 	err := json.NewDecoder(r.Body).Decode(&budget)
 	if err != nil {
-		log.Print(err.Error())
 		common.WriteErrorResponse(w, common.ParseErr)
 		return
 	}

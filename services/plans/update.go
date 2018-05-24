@@ -3,7 +3,6 @@ package plans
 import (
 	"github.com/hjkelly/zbbapi/common"
 	"github.com/hjkelly/zbbapi/models"
-	uuid "github.com/satori/go.uuid"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -15,7 +14,7 @@ func UpdateID(id string, input models.Plan) (*models.Plan, error) {
 	// Make sure the one we're updating exists.
 	current := models.Plan{}
 	err := ds.C().Find(bson.M{
-		"_id": uuid.FromStringOrNil(id),
+		"_id": id,
 	}).One(&current)
 	if err != nil {
 		if err == mgo.ErrNotFound {

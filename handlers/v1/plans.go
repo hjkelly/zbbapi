@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/hjkelly/zbbapi/common"
@@ -29,7 +28,6 @@ func createPlan(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	// Save it.
-	log.Printf("now we are creating!")
 	result, err := plans.Create(plan)
 	if err != nil {
 		// TODO: Handle validation vs. DB error...
@@ -53,7 +51,6 @@ func updatePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 	var plan models.Plan
 	err := json.NewDecoder(r.Body).Decode(&plan)
 	if err != nil {
-		log.Print(err.Error())
 		common.WriteErrorResponse(w, common.ParseErr)
 		return
 	}

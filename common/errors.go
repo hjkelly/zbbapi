@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"log"
 	"strings"
 )
@@ -98,7 +99,7 @@ const invalidDataCode = "INVALID_DATA"
 const invalidDataMessage = "One or more fields was either missing or invalid."
 
 // NewValidationError creates a new ValidationError with code INVALID_DATA and instantiates a single field error.
-func NewValidationError(fieldName, code, message string) *ValidationError {
+func NewValidationError(fieldName, code, message string, args ...interface{}) *ValidationError {
 	return &ValidationError{
 		BasicError: BasicError{
 			Code:    invalidDataCode,
@@ -108,7 +109,7 @@ func NewValidationError(fieldName, code, message string) *ValidationError {
 			{
 				FieldName: fieldName,
 				Code:      code,
-				Message:   message,
+				Message:   fmt.Sprintf(message, args...),
 			},
 		},
 	}

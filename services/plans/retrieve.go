@@ -3,7 +3,6 @@ package plans
 import (
 	"github.com/hjkelly/zbbapi/common"
 	"github.com/hjkelly/zbbapi/models"
-	uuid "github.com/satori/go.uuid"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -13,7 +12,7 @@ func Retrieve(id string) (*models.Plan, error) {
 	ds := newDatastore()
 	result := new(models.Plan)
 	err := ds.C().Find(bson.M{
-		"_id": uuid.FromStringOrNil(id),
+		"_id": id,
 	}).One(&result)
 	if err != nil {
 		if err == mgo.ErrNotFound {
