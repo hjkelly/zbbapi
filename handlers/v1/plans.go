@@ -6,6 +6,7 @@ import (
 
 	"github.com/hjkelly/zbbapi/common"
 	"github.com/hjkelly/zbbapi/models"
+	"github.com/hjkelly/zbbapi/services/conversions"
 	"github.com/hjkelly/zbbapi/services/plans"
 	"github.com/julienschmidt/httprouter"
 )
@@ -70,4 +71,19 @@ func deletePlan(w http.ResponseWriter, r *http.Request, params httprouter.Params
 		return
 	}
 	common.WriteResponse(w, 204, nil)
+}
+
+func createConversion(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	var conversion models.Conversion
+	err := json.NewDecoder(r.Body).Decode(&conversion)
+	if err != nil {
+		common.WriteErrorResponse(w, err)
+		return
+	}
+	result, err := conversions.Create(params.ByName("id"), conversion)
+	if err != nil {
+		common.WriteErrorResponse(w, err)
+		return
+	}
+	common.WriteResponse(w, 201, result)
 }

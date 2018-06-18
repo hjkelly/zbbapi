@@ -23,6 +23,16 @@ func (budget Budget) GetValidated() (Budget, error) {
 	// this will hold error results
 	errs := make([]error, 0)
 
+	// IDs
+	if budget.PlanID != nil {
+		cleanID, idErr := budget.PlanID.GetValidated()
+		if idErr != nil {
+			errs = append(errs, common.AddValidationContext(idErr, "planID"))
+		} else {
+			budget.PlanID = &cleanID
+		}
+	}
+
 	// dates
 	errs = append(errs, common.AddValidationContext(budget.StartDate.ValidateNonZero(), "startDate"))
 	errs = append(errs, common.AddValidationContext(budget.EndDate.ValidateNonZero(), "endDate"))
@@ -69,6 +79,22 @@ func (budget Budget) GetValidated() (Budget, error) {
 
 	// Otherwise, add any sanitized values.
 	return budget, nil
+}
+
+func (budget Budget) AddPlanData(plan Plan) Budget {
+	for _, income := range plan.Incomes {
+		budget.Incomes = append(budget.Incomes, income.NameAndAmount)
+	}
+	for _, expense := range plan.Expenses {
+		budget.Expenses = append(budget.Expenses, expense.NameAndAmount)
+	}
+	for _, bill := range plan.Bills {
+		budget.Bills = append(budget.Bills, bill.NameAndAmount)
+	}
+	for _, saving := range plan.Savings {
+		budget.Savings = append(budget.Savings, saving.NameAndAmount)
+	}
+	return budget
 }
 
 type ChecklistItem struct {

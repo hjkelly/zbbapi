@@ -10,8 +10,9 @@ type Timestamped struct {
 
 // SetCreationTimestamp sets creation and modification timestamps to now. This is useful when a composing model is first created.
 func (t *Timestamped) SetCreationTimestamp() {
-	t.Created = time.Now()
-	t.Modified = time.Now()
+	now := time.Now()
+	t.Created = now
+	t.Modified = now
 }
 
 // SetModificationTimestamp sets modification timestamp to now. This is useful when a composing model is updated.

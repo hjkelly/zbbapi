@@ -53,3 +53,11 @@ func (items NamesAndAmounts) GetValidated() (NamesAndAmounts, error) {
 	}
 	return items, nil
 }
+
+func (items NamesAndAmounts) AsMap() map[string]Amount {
+	itemMap := map[string]Amount{}
+	for _, item := range items {
+		itemMap[item.Name] = item.Amount
+	}
+	return itemMap
+}

@@ -1,4 +1,4 @@
-package plans
+package jobs
 
 import (
 	"github.com/hjkelly/zbbapi/common"
@@ -7,18 +7,18 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Retrieve fetches a single Plan from the database, if its ID exists.
-func Retrieve(id string) (models.Plan, error) {
+// Retrieve fetches a single Job from the database, if its ID exists.
+func Retrieve(id string) (*models.Job, error) {
 	ds := newDatastore()
-	result := models.Plan{}
+	result := new(models.Job)
 	err := ds.C().Find(bson.M{
 		"_id": id,
 	}).One(&result)
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			return result, common.NotFoundErr
+			return nil, common.NotFoundErr
 		}
-		return result, err
+		return nil, err
 	}
 	return result, nil
 }

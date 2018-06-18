@@ -2,8 +2,10 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hjkelly/zbbapi/common"
 )
@@ -15,6 +17,68 @@ type Schedule struct {
 	HalfMonth *[]int       `json:"halfMonthOnDays,omitempty"`
 	TwoWeeks  *common.Date `json:"twoWeeksStarting,omitempty"`
 	Week      *string      `json:"weekOn,omitempty"`
+}
+
+func (s Schedule) Occurrences(startDate, endDate common.Date) int {
+	occurrences := 0
+	if s.Year != nil {
+		testDate := *s.Year
+		// Advance the year until we pass our end date. If at any point we find a date that lands between our start and end dates, it's that time of year. It technically handles multiple occurrences over multiple years, just to see if any common logic stands out.
+		for testDate.BeforeEqual(endDate) {
+			if testDate.Between(startDate, endDate) {
+				occurrences = occurrences + 1
+			}
+			testDate = testDate.AddYears(1)
+		}
+	} else if s.Month != nil {
+		thisYear, thisMonth, _ := time.Now().Date()
+		testDate := common.Date{
+			Year:  thisYear,
+			Month: thisMonth,
+			Day:   *s.Month,
+		}
+		for testDate.BeforeEqual(endDate) {
+			if testDate.Between(startDate, endDate) {
+				occurrences = occurrences + 1
+			}
+			testDate = testDate.AddMonths(1)
+		}
+	} else if s.HalfMonth != nil {
+		thisYear, _, _ := DateOf(time.Now())
+		testDate := common.Date{
+			Year:  thisYear,
+			Month: startDate.Month,
+			Day:   1,
+		}
+		monthOffset := 0
+		for testDate.BeforeEqual(testDate) {
+			for _, dayOfMonth := range *s.HalfMonth {
+				testDate.Day = dayOfMonth
+				if testDate.Between(startDate, endDate) {
+					occurrences = occurrences + 1
+				}
+			}
+			testDate = testDate.AddMonths(1)
+		}
+	} else if s.TwoWeeks != nil {
+		testDate := *s.TwoWeeks
+		// Advance the date by two weeks until we pass the end date, counting each occurrence.
+		for testDate.BeforeEqual(endDate) {
+			if testDate.Between(startDate, endDate) {
+				occurrences = occurrences + 1
+			}
+			testDate = testDate.AddDays(14)
+		}
+	} else if s.Week != nil {
+		testDate := startDate
+		if testDate.NoonGMT().Weekday() == *s.Week {
+
+		}
+		// TODO
+	} else {
+		log.Printf("The schedule didn't have any day defined.")
+	}
+	return occurrences
 }
 
 // GetValidated returns a sanitized schedule if the type and other sometimes-required attributes are in order; otherwise, returns an error.

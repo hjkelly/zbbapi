@@ -5,14 +5,11 @@ import (
 )
 
 // Create validates and preps a Budget, then saves it via the controller's datastore.
-func Create(input models.Budget) (*models.Budget, error) {
+func Create(input models.Budget) (models.Budget, error) {
 	var err error
 	input, err = getValidated(input)
 	if err != nil {
-		return nil, err
-	}
-	if err != nil {
-		return nil, err
+		return input, err
 	}
 
 	// prepare the rest of the resource
@@ -23,7 +20,7 @@ func Create(input models.Budget) (*models.Budget, error) {
 	ds := newDatastore()
 	err = ds.C().Insert(input)
 	if err != nil {
-		return nil, err
+		return input, err
 	}
-	return &input, nil
+	return input, nil
 }

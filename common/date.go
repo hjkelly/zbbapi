@@ -82,10 +82,26 @@ func (d Date) In(loc *time.Location) time.Time {
 	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, loc)
 }
 
+func (d Date) NoonUTC(loc *time.Location) time.Time {
+	return time.Date(d.Year, d.Month, d.Day, 12, 0, 0, 0, time.UTC)
+}
+
 // AddDays returns the date that is n days in the future.
 // n can also be negative to go into the past.
 func (d Date) AddDays(n int) Date {
 	return DateOf(d.In(time.UTC).AddDate(0, 0, n))
+}
+
+// AddMonths returns the date that is n months in the future.
+// n can also be negative to go into the past.
+func (d Date) AddMonths(n int) Date {
+	return DateOf(d.In(time.UTC).AddDate(0, n, 0))
+}
+
+// AddYears returns the date that is n months in the future.
+// n can also be negative to go into the past.
+func (d Date) AddYears(n int) Date {
+	return DateOf(d.In(time.UTC).AddDate(n, 0, 0))
 }
 
 // DaysSince returns the signed number of days between the date and s, not including the end day.
@@ -108,9 +124,17 @@ func (d Date) Before(d2 Date) bool {
 	return d.Day < d2.Day
 }
 
+func (d Date) BeforeEqual(d2 Date) bool {
+	return d.Before(d2) || d == d2
+}
+
 // After reports whether d occurs after d2.
 func (d Date) After(d2 Date) bool {
 	return d2.Before(d)
+}
+
+func (d Date) AfterEqual(d2 Date) bool {
+	return d.After(d2) || d == d2
 }
 
 // MarshalText implements the encoding.TextMarshaler interface.
@@ -125,4 +149,9 @@ func (d *Date) UnmarshalText(data []byte) error {
 	var err error
 	*d, err = ParseDate(string(data))
 	return err
+}
+
+// Between checks if the date is included in the range inclusively.
+func (d Date) Between(startDate, endDate Date) bool {
+	return d.AfterEqual(startDate) && d.BeforeEqual(endDate)
 }
