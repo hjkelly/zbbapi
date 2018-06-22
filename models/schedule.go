@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hjkelly/zbbapi/common"
 )
@@ -31,10 +30,9 @@ func (s Schedule) Occurrences(startDate, endDate common.Date) int {
 			testDate = testDate.AddYears(1)
 		}
 	} else if s.Month != nil {
-		thisYear, thisMonth, _ := time.Now().Date()
 		testDate := common.Date{
-			Year:  thisYear,
-			Month: thisMonth,
+			Year:  startDate.Year,
+			Month: startDate.Month,
 			Day:   *s.Month,
 		}
 		for testDate.BeforeEqual(endDate) {
@@ -44,14 +42,13 @@ func (s Schedule) Occurrences(startDate, endDate common.Date) int {
 			testDate = testDate.AddMonths(1)
 		}
 	} else if s.HalfMonth != nil {
-		thisYear, _, _ := DateOf(time.Now())
 		testDate := common.Date{
-			Year:  thisYear,
+			Year:  startDate.Year,
 			Month: startDate.Month,
-			Day:   1,
+			Day:   1, // doesn't matter, we're going to manipulate it inside the loop anyways
 		}
-		monthOffset := 0
-		for testDate.BeforeEqual(testDate) {
+		monthAfterEndDate := endDate.AddMonths(1)
+		for testDate.BeforeEqual(monthAfterEndDate) {
 			for _, dayOfMonth := range *s.HalfMonth {
 				testDate.Day = dayOfMonth
 				if testDate.Between(startDate, endDate) {
@@ -70,11 +67,16 @@ func (s Schedule) Occurrences(startDate, endDate common.Date) int {
 			testDate = testDate.AddDays(14)
 		}
 	} else if s.Week != nil {
-		testDate := startDate
-		if testDate.NoonGMT().Weekday() == *s.Week {
-
+		targetWeekday, err := common.Weekday(*s.Week)
+		if err != nil {
+			return occurrences
 		}
-		// TODO
+		daysUntilWeekday := startDate.DaysUntilWeekday(targetWeekday)
+		testDate := startDate.AddDays(daysUntilWeekday)
+		for testDate.BeforeEqual(endDate) {
+			occurrences = occurrences + 1
+			testDate = testDate.AddDays(7)
+		}
 	} else {
 		log.Printf("The schedule didn't have any day defined.")
 	}

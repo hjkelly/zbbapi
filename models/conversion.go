@@ -56,7 +56,7 @@ func (conversion Conversion) MakeBudget(plan Plan) Budget {
 	exactIncomeMap := conversion.ExactIncomes.AsMap()
 	budget.Incomes = make(NamesAndAmounts, 0, len(plan.Incomes))
 	for _, planItem := range plan.Incomes {
-		budgetAmount := 0
+		var budgetAmount Amount
 		if exactAmount, found := exactIncomeMap[planItem.Name]; found {
 			budgetAmount = exactAmount
 			// remove the item so we know not to add it as a custom income
@@ -64,57 +64,69 @@ func (conversion Conversion) MakeBudget(plan Plan) Budget {
 		} else {
 			budgetAmount = planItem.Amount
 		}
-		budget.Incomes = append(budget.Incomes, budgetAmount)
+		budget.Incomes = append(budget.Incomes, NameAndAmount{
+			Name:   planItem.Name,
+			Amount: budgetAmount,
+		})
 	}
-	for _, exactItem := range conversion.ExactIncomes {
-		// if we still have exact incomes in the map, that means they're custom and should be added
-		if exactAmount, found := exactIncomeMap[planItem.Name]; found {
-			budget.Incomes = append(budget.Incomes, exactItem)
-		}
+	// if we still have exact incomes in the map, that means they're custom and should be added
+	for name, exactAmount := range exactIncomeMap {
+		budget.Incomes = append(budget.Incomes, NameAndAmount{
+			Name:   name,
+			Amount: exactAmount,
+		})
 	}
 
 	// incorporate exact bills
-	exactExpenseMap := conversion.ExactExpenses.AsMap()
-	budget.Expenses = make(NamesAndAmounts, 0, len(plan.Expenses))
-	for _, planItem := range plan.Expenses {
-		budgetAmount := 0
-		if exactAmount, found := exactExpenseMap[planItem.Name]; found {
+	exactBillMap := conversion.ExactExpenses.AsMap()
+	budget.Bills = make(NamesAndAmounts, 0, len(plan.Bills))
+	for _, planItem := range plan.Bills {
+		var budgetAmount Amount
+		if exactAmount, found := exactBillMap[planItem.Name]; found {
 			budgetAmount = exactAmount
 			// remove the item so we know not to add it as a custom income
-			delete(exactExpenseMap, planItem.Name)
+			delete(exactBillMap, planItem.Name)
 		} else {
 			// if it falls in this date range, include it.
 			budgetAmount = planItem.Amount
 			// TODO
 		}
-		budget.Expenses = append(budget.Expenses, budgetAmount)
+		budget.Bills = append(budget.Bills, NameAndAmount{
+			Name:   planItem.Name,
+			Amount: budgetAmount,
+		})
 	}
-	for _, exactItem := range conversion.ExactExpenses {
-		// if we still have exact incomes in the map, that means they're custom and should be added
-		if exactAmount, found := exactExpenseMap[planItem.Name]; found {
-			budget.Expenses = append(budget.Expenses, exactItem)
-		}
+	// if we still have exact incomes in the map, that means they're custom and should be added
+	for name, exactAmount := range exactBillMap {
+		budget.Bills = append(budget.Bills, NameAndAmount{
+			Name:   name,
+			Amount: exactAmount,
+		})
 	}
 
 	// incorporate exact expenses
 	exactExpenseMap := conversion.ExactExpenses.AsMap()
 	budget.Expenses = make(NamesAndAmounts, 0, len(plan.Expenses))
 	for _, planItem := range plan.Expenses {
-		budgetAmount := 0
+		var budgetAmount Amount
 		if exactAmount, found := exactExpenseMap[planItem.Name]; found {
 			budgetAmount = exactAmount
 			// remove the item so we know not to add it as a custom income
 			delete(exactExpenseMap, planItem.Name)
 		} else {
-			budgetAmount = planItem.Amount * partialMonthMultiplier
+			budgetAmount = Amount{planItem.Amount.AmountCents * partialMonthMultiplier}
 		}
-		budget.Expenses = append(budget.Expenses, budgetAmount)
+		budget.Expenses = append(budget.Expenses, NameAndAmount{
+			Name:   planItem.Name,
+			Amount: budgetAmount,
+		})
 	}
-	for _, exactItem := range conversion.ExactExpenses {
-		// if we still have exact incomes in the map, that means they're custom and should be added
-		if exactAmount, found := exactExpenseMap[planItem.Name]; found {
-			budget.Expenses = append(budget.Expenses, exactItem)
-		}
+	// if we still have exact incomes in the map, that means they're custom and should be added
+	for name, exactAmount := range exactExpenseMap {
+		budget.Expenses = append(budget.Expenses, NameAndAmount{
+			Name:   name,
+			Amount: exactAmount,
+		})
 	}
 
 	return budget

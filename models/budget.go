@@ -23,16 +23,6 @@ func (budget Budget) GetValidated() (Budget, error) {
 	// this will hold error results
 	errs := make([]error, 0)
 
-	// IDs
-	if budget.PlanID != nil {
-		cleanID, idErr := budget.PlanID.GetValidated()
-		if idErr != nil {
-			errs = append(errs, common.AddValidationContext(idErr, "planID"))
-		} else {
-			budget.PlanID = &cleanID
-		}
-	}
-
 	// dates
 	errs = append(errs, common.AddValidationContext(budget.StartDate.ValidateNonZero(), "startDate"))
 	errs = append(errs, common.AddValidationContext(budget.EndDate.ValidateNonZero(), "endDate"))

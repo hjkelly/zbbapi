@@ -82,7 +82,7 @@ func (d Date) In(loc *time.Location) time.Time {
 	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, loc)
 }
 
-func (d Date) NoonUTC(loc *time.Location) time.Time {
+func (d Date) NoonUTC() time.Time {
 	return time.Date(d.Year, d.Month, d.Day, 12, 0, 0, 0, time.UTC)
 }
 
@@ -154,4 +154,20 @@ func (d *Date) UnmarshalText(data []byte) error {
 // Between checks if the date is included in the range inclusively.
 func (d Date) Between(startDate, endDate Date) bool {
 	return d.AfterEqual(startDate) && d.BeforeEqual(endDate)
+}
+
+func (d Date) DaysUntilWeekday(goalWeekday time.Weekday) int {
+	goal := int(goalWeekday)
+	current := int(d.NoonUTC().Weekday())
+	return (goal + 7 - current) % 7
+}
+
+func Weekday(input string) (time.Weekday, error) {
+	var testWeekday time.Weekday
+	for testWeekday = 0; testWeekday < 7; testWeekday++ {
+		if testWeekday.String() == input {
+			return testWeekday, nil
+		}
+	}
+	return testWeekday, NewValidationError(BadEnumChoiceCode, "", "That's not a valid day of the week.")
 }
