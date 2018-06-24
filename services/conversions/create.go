@@ -5,7 +5,7 @@ import (
 	"github.com/hjkelly/zbbapi/services/budgets"
 )
 
-func Create(id string, input models.Conversion) (models.Conversion, error) {
+func Create(input models.Conversion) (models.Conversion, error) {
 	// Did they give us enough to save?
 	input, plan, err := getValidated(input)
 	if err != nil {

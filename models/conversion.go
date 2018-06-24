@@ -26,7 +26,7 @@ func (conversion Conversion) GetValidated() (Conversion, error) {
 	// plan ID valid?
 	conversion.PlanID, err = conversion.PlanID.GetValidated()
 	if err != nil {
-		errs = append(errs, err)
+		errs = append(errs, common.AddValidationContext(err, "planID"))
 	}
 	// incomes, expenses, bills valid?
 	conversion.ExactIncomes, err = conversion.ExactIncomes.GetValidated()
@@ -40,6 +40,11 @@ func (conversion Conversion) GetValidated() (Conversion, error) {
 	conversion.ExactBills, err = conversion.ExactBills.GetValidated()
 	if err != nil {
 		errs = append(errs, common.AddValidationContext(err, "exactBills"))
+	}
+
+	err = common.CombineErrors(errs...)
+	if err != nil {
+		return Conversion{}, err
 	}
 	return conversion, nil
 }
@@ -88,8 +93,10 @@ func (conversion Conversion) MakeBudget(plan Plan) Budget {
 			delete(exactBillMap, planItem.Name)
 		} else {
 			// if it falls in this date range, include it.
-			budgetAmount = planItem.Amount
-			// TODO
+			occurrences := planItem.Occurrences(conversion.StartDate, conversion.EndDate)
+			budgetAmount = Amount{
+				AmountCents: planItem.Amount.AmountCents * occurrences,
+			}
 		}
 		budget.Bills = append(budget.Bills, NameAndAmount{
 			Name:   planItem.Name,

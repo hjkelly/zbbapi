@@ -80,7 +80,8 @@ func createConversion(w http.ResponseWriter, r *http.Request, params httprouter.
 		common.WriteErrorResponse(w, err)
 		return
 	}
-	result, err := conversions.Create(params.ByName("id"), conversion)
+	conversion.PlanID = models.SafeUUID(params.ByName("id"))
+	result, err := conversions.Create(conversion)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return

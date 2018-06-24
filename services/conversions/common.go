@@ -22,7 +22,7 @@ func getValidated(input models.Conversion) (models.Conversion, models.Plan, erro
 	// which of the plan's bills need exact amounts?
 	inconsistentBillNames := []string{}
 	for _, bill := range plan.Bills {
-		if !bill.IsAmountExact {
+		if !bill.IsAmountExact && bill.Occurrences(input.StartDate, input.EndDate) > 0 {
 			inconsistentBillNames = append(inconsistentBillNames, bill.Name)
 		}
 	}
